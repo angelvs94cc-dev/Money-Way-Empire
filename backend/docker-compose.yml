@@ -1,0 +1,29 @@
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: money-way-empire-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: mwe_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: money_way_empire
+
+    ports:
+      - "127.0.0.1:5435:5432"
+
+    volumes:
+      - mwe_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U mwe_user -d money_way_empire
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mwe_postgres_data:
+

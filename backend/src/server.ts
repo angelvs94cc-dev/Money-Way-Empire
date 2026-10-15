@@ -1,6 +1,7 @@
 
 
 import express from "express";
+import helmet from "helmet";
 import cors from "cors";
 import dotenv from "dotenv";
 import { prisma } from "./lib/prisma";
@@ -13,6 +14,8 @@ import usersRoutes from "./routes/users.routes";
 dotenv.config();
 
 const app = express();
+
+app.use(helmet());
 
 const PORT = Number(process.env.PORT) || 4000;
 

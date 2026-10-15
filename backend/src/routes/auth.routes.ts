@@ -4,9 +4,21 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma";
 import jwt from "jsonwebtoken";
+import { rateLimit } from "express-rate-limit";
 
 
 const router = Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Demasiados intentos de inicio de sesión. Inténtalo de nuevo en 15 minutos.",
+  },
+});
 
 router.post("/signup", async (req, res) => {
   try {
@@ -74,7 +86,7 @@ router.post("/signup", async (req, res) => {
 });
 
 
-router.post("/signin", async (req, res) => {
+router.post("/signin", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body ?? {};
 

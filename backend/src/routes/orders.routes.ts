@@ -160,7 +160,7 @@ router.patch(
           } else {
             // Evitamos retroceder pedidos enviados o entregados.
             const transiciones: Record<OrderStatus, OrderStatus[]> = {
-              PENDING: ["SHIPPED"],
+              PENDING: [],
               PAID: ["SHIPPED"],
               SHIPPED: ["DELIVERED"],
               DELIVERED: [],
@@ -446,5 +446,6 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 export default router;
+
 
 

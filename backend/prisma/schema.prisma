@@ -54,6 +54,7 @@ model Order {
   id          String      @id @default(uuid())
   userId      String
   status      OrderStatus @default(PENDING)
+  stripeSessionId String? @unique
   total       Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -82,3 +83,4 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
 }
+

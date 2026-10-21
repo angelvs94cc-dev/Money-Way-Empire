@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { Suspense, useEffect, useState, type FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type Producto = {
@@ -18,7 +18,7 @@ type Producto = {
   active: boolean;
 };
 
-export default function EditarProductoPage() {
+function EditarProductoContenido() {
   const router = useRouter();
   const params = useParams();
   const id = String(params.id ?? "");
@@ -383,5 +383,18 @@ export default function EditarProductoPage() {
         </form>
       </div>
     </main>
+  );
+}
+export default function EditarProductoPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-background p-12 text-foreground">
+          Cargando editor de productos...
+        </main>
+      }
+    >
+      <EditarProductoContenido />
+    </Suspense>
   );
 }

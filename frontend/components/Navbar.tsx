@@ -9,38 +9,89 @@ const menus = [
     nombre: "Servicios",
     enlace: "/servicios",
     opciones: [
-      { nombre: "Producción musical", enlace: "/servicios/produccion-musical" },
-      { nombre: "Audiovisual", enlace: "/servicios/audiovisual" },
-      { nombre: "Diseño y branding", enlace: "/servicios/diseno-branding" },
-      { nombre: "Marketing digital", enlace: "/servicios/marketing-digital" },
-      { nombre: "Desarrollo web", enlace: "/servicios/desarrollo-web" },
-      { nombre: "Organización y producción de eventos", enlace: "/servicios/organizacion-de-eventos" },
+      {
+        nombre: "Producción musical",
+        enlace: "/servicios/produccion-musical",
+      },
+      {
+        nombre: "Producción audiovisual",
+        enlace: "/servicios/audiovisual",
+      },
+      {
+        nombre: "Fotografía",
+        enlace: "/servicios/fotografia",
+      },
+      {
+        nombre: "Diseño y branding",
+        enlace: "/servicios/diseno-y-branding",
+      },
+      {
+        nombre: "Marketing digital",
+        enlace: "/servicios/marketing-digital",
+      },
+      {
+        nombre: "Desarrollo web",
+        enlace: "/servicios/desarrollo-web",
+      },
     ],
   },
   {
     nombre: "Proyectos",
     enlace: "/proyectos",
     opciones: [
-      { nombre: "Todos los proyectos", enlace: "/proyectos" },
-      { nombre: "Audiovisual", enlace: "/proyectos/audiovisual" },
-      { nombre: "Diseño y branding", enlace: "/proyectos/diseno-branding" },
-      { nombre: "Marketing", enlace: "/proyectos/marketing" },
-      { nombre: "Desarrollo web", enlace: "/proyectos/desarrollo-web" },
+      {
+        nombre: "Todos los proyectos",
+        enlace: "/proyectos",
+      },
+      {
+        nombre: "Audiovisual",
+        enlace: "/proyectos?categoria=audiovisual",
+      },
+      {
+        nombre: "Fotografía",
+        enlace: "/proyectos?categoria=fotografia",
+      },
+      {
+        nombre: "Diseño y branding",
+        enlace: "/proyectos?categoria=diseno-branding",
+      },
+      {
+        nombre: "Marketing digital",
+        enlace: "/proyectos?categoria=marketing",
+      },
+      {
+        nombre: "Desarrollo web",
+        enlace: "/proyectos?categoria=desarrollo-web",
+      },
     ],
   },
   {
     nombre: "Música",
     enlace: "/musica",
     opciones: [
-      { nombre: "Booking", enlace: "/musica/booking" },
-      { nombre: "Lanzamientos", enlace: "/musica/lanzamientos" },
+      {
+        nombre: "Booking",
+        enlace: "/musica/booking",
+      },
+      {
+        nombre: "Lanzamientos",
+        enlace: "/musica/lanzamientos",
+      },
     ],
   },
 ];
 
 export default function Navbar() {
-  const [menuAbierto, setMenuAbierto] = useState<string | null>(null);
+  const [menuAbierto, setMenuAbierto] = useState<string | null>(
+    null
+  );
+
   const [movilAbierto, setMovilAbierto] = useState(false);
+
+  const cerrarMenus = () => {
+    setMenuAbierto(null);
+    setMovilAbierto(false);
+  };
 
   return (
     <header className="relative z-50 border-b border-white/10 bg-background">
@@ -48,6 +99,7 @@ export default function Navbar() {
         <Link
           href="/"
           className="text-xl font-black tracking-widest text-gold"
+          onClick={cerrarMenus}
         >
           MONEY WAY EMPIRE
         </Link>
@@ -55,7 +107,10 @@ export default function Navbar() {
         <button
           type="button"
           className="rounded border border-white/20 px-3 py-2 text-sm lg:hidden"
-          onClick={() => setMovilAbierto(!movilAbierto)}
+          onClick={() => {
+            setMovilAbierto(!movilAbierto);
+            setMenuAbierto(null);
+          }}
           aria-expanded={movilAbierto}
           aria-controls="menu-principal"
         >
@@ -68,7 +123,11 @@ export default function Navbar() {
             movilAbierto ? "flex" : "hidden"
           } absolute left-0 right-0 top-full flex-col gap-5 border-b border-white/10 bg-background px-6 py-6 lg:static lg:flex lg:flex-row lg:items-center lg:gap-6 lg:border-0 lg:p-0`}
         >
-          <Link href="/" onClick={() => setMovilAbierto(false)}>
+          <Link
+            href="/"
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
+          >
             Inicio
           </Link>
 
@@ -83,7 +142,7 @@ export default function Navbar() {
                 <Link
                   href={menu.enlace}
                   className="transition hover:text-gold"
-                  onClick={() => setMovilAbierto(false)}
+                  onClick={cerrarMenus}
                 >
                   {menu.nombre}
                 </Link>
@@ -92,10 +151,14 @@ export default function Navbar() {
                   type="button"
                   className="px-1 text-gold"
                   aria-label={`Desplegar ${menu.nombre}`}
-                  aria-expanded={menuAbierto === menu.nombre}
+                  aria-expanded={
+                    menuAbierto === menu.nombre
+                  }
                   onClick={() =>
                     setMenuAbierto(
-                      menuAbierto === menu.nombre ? null : menu.nombre
+                      menuAbierto === menu.nombre
+                        ? null
+                        : menu.nombre
                     )
                   }
                 >
@@ -110,10 +173,7 @@ export default function Navbar() {
                       key={opcion.enlace}
                       href={opcion.enlace}
                       className="text-sm transition hover:text-gold"
-                      onClick={() => {
-                        setMenuAbierto(null);
-                        setMovilAbierto(false);
-                      }}
+                      onClick={cerrarMenus}
                     >
                       {opcion.nombre}
                     </Link>
@@ -125,24 +185,24 @@ export default function Navbar() {
 
           <Link
             href="/eventos"
-            className="hover:text-gold"
-            onClick={() => setMovilAbierto(false)}
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
           >
             Eventos
           </Link>
 
           <Link
             href="/shop"
-            className="hover:text-gold"
-            onClick={() => setMovilAbierto(false)}
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
           >
             Shop
           </Link>
 
           <Link
             href="/contacto"
-            className="hover:text-gold"
-            onClick={() => setMovilAbierto(false)}
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
           >
             Contacto
           </Link>
@@ -150,8 +210,8 @@ export default function Navbar() {
           <Link
             href="/mi-cuenta"
             aria-label="Mi cuenta"
-            className="hover:text-gold"
-            onClick={() => setMovilAbierto(false)}
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
           >
             ♙ Cuenta
           </Link>
@@ -159,8 +219,8 @@ export default function Navbar() {
           <Link
             href="/carrito"
             aria-label="Carrito de compra"
-            className="hover:text-gold"
-            onClick={() => setMovilAbierto(false)}
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
           >
             🛍 Carrito
           </Link>

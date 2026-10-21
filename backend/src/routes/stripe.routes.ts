@@ -6,8 +6,6 @@ import { prisma } from "../lib/prisma";
 
 const router = Router();
 
-// Inicializar Stripe únicamente en modo de pruebas.
-// Admitimos claves secretas (sk_test_) y restringidas (rk_test_).
 function getStripe(): Stripe {
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
@@ -22,8 +20,28 @@ function getStripe(): Stripe {
   return new Stripe(secretKey);
 }
 
+function isValidPayment(
+  session: Stripe.Checkout.Session,
+  order: {
+    id: string;
+    total: number;
+    stripeSessionId: string | null;
+  }
+): boolean {
+  return (
+    session.id === order.stripeSessionId &&
+    session.client_reference_id === order.id &&
+    session.metadata?.orderId === order.id &&
+    session.mode === "payment" &&
+    session.status === "complete" &&
+    session.payment_status === "paid" &&
+    session.currency?.toLowerCase() === "eur" &&
+    session.amount_total === order.total &&
+    session.livemode === false
+  );
+}
+
 // GET /api/stripe/status
-// Comprobar la configuración local de Stripe.
 router.get("/status", requireAuth, (_req, res) => {
   try {
     getStripe();
@@ -40,14 +58,13 @@ router.get("/status", requireAuth, (_req, res) => {
   }
 });
 
-// POST /api/stripe/checkout
-// Crear una sesión de pago para un pedido pendiente.
-router.post("/checkout", requireAuth, async (req, res) => {
+// POST /api/stripe/verify
+// Recuperar un pago confirmado cuando no llega el webhook.
+router.post("/verify", requireAuth, async (req, res) => {
   try {
     const userId = res.locals.userId as string;
     const orderId: unknown = req.body?.orderId;
 
-    // Validar identificador del pedido.
     if (typeof orderId !== "string" || !orderId.trim()) {
       res.status(400).json({
         success: false,
@@ -56,7 +73,109 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    // Buscar únicamente pedidos del usuario autenticado.
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId.trim(),
+        userId,
+      },
+    });
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: "Pedido no encontrado",
+      });
+      return;
+    }
+
+    if (order.status === "PAID") {
+      res.json({
+        success: true,
+        status: "PAID",
+        message: "El pago ya estaba confirmado",
+      });
+      return;
+    }
+
+    if (order.status !== "PENDING" || !order.stripeSessionId) {
+      res.status(409).json({
+        success: false,
+        message: "Este pedido no tiene un pago pendiente verificable",
+      });
+      return;
+    }
+
+    const stripe = getStripe();
+
+    const session = await stripe.checkout.sessions.retrieve(
+      order.stripeSessionId
+    );
+
+    if (!isValidPayment(session, order)) {
+      res.status(409).json({
+        success: false,
+        status: "PENDING",
+        message: "Stripe todavía no confirma el pago de este pedido",
+      });
+      return;
+    }
+
+    const updated = await prisma.order.updateMany({
+      where: {
+        id: order.id,
+        userId,
+        status: "PENDING",
+        stripeSessionId: session.id,
+        total: session.amount_total!,
+      },
+      data: {
+        status: "PAID",
+      },
+    });
+
+    if (updated.count !== 1) {
+      const current = await prisma.order.findUnique({
+        where: { id: order.id },
+      });
+
+      if (current?.status !== "PAID") {
+        res.status(409).json({
+          success: false,
+          message: "El pedido cambió durante la verificación",
+        });
+        return;
+      }
+    }
+
+    res.json({
+      success: true,
+      status: "PAID",
+      message: "Pago confirmado correctamente con Stripe",
+    });
+  } catch (error) {
+    console.error("Error al verificar el pago de Stripe:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "No se pudo verificar el pago",
+    });
+  }
+});
+
+// POST /api/stripe/checkout
+router.post("/checkout", requireAuth, async (req, res) => {
+  try {
+    const userId = res.locals.userId as string;
+    const orderId: unknown = req.body?.orderId;
+
+    if (typeof orderId !== "string" || !orderId.trim()) {
+      res.status(400).json({
+        success: false,
+        message: "Debes indicar un pedido válido",
+      });
+      return;
+    }
+
     const order = await prisma.order.findFirst({
       where: {
         id: orderId.trim(),
@@ -75,7 +194,6 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    // Solo pueden pagarse pedidos pendientes.
     if (order.status !== "PENDING") {
       res.status(409).json({
         success: false,
@@ -84,16 +202,65 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    // Evitar crear otra sesión para el mismo pedido.
+    const stripe = getStripe();
+
+    // Si ya existe una sesión, consultar su estado.
     if (order.stripeSessionId) {
+      const existingSession = await stripe.checkout.sessions.retrieve(
+        order.stripeSessionId
+      );
+
+      if (isValidPayment(existingSession, order)) {
+        const updated = await prisma.order.updateMany({
+          where: {
+            id: order.id,
+            userId,
+            status: "PENDING",
+            stripeSessionId: existingSession.id,
+            total: existingSession.amount_total!,
+          },
+          data: {
+            status: "PAID",
+          },
+        });
+
+        if (updated.count !== 1) {
+          res.status(409).json({
+            success: false,
+            message: "El pedido ha cambiado. Actualiza la página.",
+          });
+          return;
+        }
+
+        res.json({
+          success: true,
+          status: "PAID",
+          message: "El pago ya estaba confirmado en Stripe",
+        });
+        return;
+      }
+
+      if (
+        existingSession.status === "open" &&
+        existingSession.payment_status === "unpaid" &&
+        existingSession.url
+      ) {
+        res.json({
+          success: true,
+          checkoutUrl: existingSession.url,
+          sessionId: existingSession.id,
+        });
+        return;
+      }
+
       res.status(409).json({
         success: false,
-        message: "Este pedido ya tiene una sesión de pago",
+        message:
+          "La sesión anterior no permite continuar. Revisa el pedido.",
       });
       return;
     }
 
-    // Validar productos, cantidades e importes.
     if (
       order.items.length === 0 ||
       order.items.some(
@@ -111,7 +278,6 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    // Los precios se almacenan en céntimos.
     const calculatedTotal = order.items.reduce(
       (sum, item) => sum + item.unitPrice * item.quantity,
       0
@@ -128,23 +294,16 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    const stripe = getStripe();
-
-    // Crear la sesión de Stripe Checkout.
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
-
         client_reference_id: order.id,
-
         metadata: {
           orderId: order.id,
         },
-
         line_items: order.items.map((item) => ({
           price_data: {
             currency: "eur",
-
             product_data: {
               name: [
                 item.productName,
@@ -154,16 +313,12 @@ router.post("/checkout", requireAuth, async (req, res) => {
                 .filter(Boolean)
                 .join(" - "),
             },
-
             unit_amount: item.unitPrice,
           },
-
           quantity: item.quantity,
         })),
-
         success_url:
           "http://localhost:3000/checkout/success?session_id={CHECKOUT_SESSION_ID}",
-
         cancel_url:
           "http://localhost:3000/checkout/cancel",
       },
@@ -172,7 +327,6 @@ router.post("/checkout", requireAuth, async (req, res) => {
       }
     );
 
-    // Asociar la sesión de Stripe al pedido.
     const updated = await prisma.order.updateMany({
       where: {
         id: order.id,
@@ -180,7 +334,6 @@ router.post("/checkout", requireAuth, async (req, res) => {
         status: "PENDING",
         stripeSessionId: null,
       },
-
       data: {
         stripeSessionId: session.id,
       },
@@ -194,18 +347,17 @@ router.post("/checkout", requireAuth, async (req, res) => {
       return;
     }
 
-    // Devolver la URL de Stripe Checkout.
     res.json({
       success: true,
       checkoutUrl: session.url,
       sessionId: session.id,
     });
   } catch (error) {
-    console.error("Error al crear Stripe Checkout:", error);
+    console.error("Error en Stripe Checkout:", error);
 
     res.status(500).json({
       success: false,
-      message: "No se pudo iniciar el pago",
+      message: "No se pudo procesar el pago",
     });
   }
 });

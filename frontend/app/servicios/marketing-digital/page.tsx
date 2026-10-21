@@ -106,7 +106,7 @@ export default function MarketingDigitalPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=marketing-digital"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             IMPULSA TU PROYECTO
@@ -238,7 +238,7 @@ export default function MarketingDigitalPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=marketing-digital"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             SOLICITAR PRESUPUESTO
@@ -248,3 +248,4 @@ export default function MarketingDigitalPage() {
     </main>
   );
 }
+

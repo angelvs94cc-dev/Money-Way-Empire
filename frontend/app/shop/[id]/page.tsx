@@ -1,6 +1,5 @@
-
 "use client";
-
+import { Suspense } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -29,7 +28,7 @@ type RespuestaProductos = {
   products: ProductoAPI[];
 };
 
-export default function ProductoPage() {
+function ProductoContenido() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
@@ -622,5 +621,19 @@ export default function ProductoPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function ProductoPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-background p-12 text-foreground">
+          Cargando producto...
+        </main>
+      }
+    >
+      <ProductoContenido />
+    </Suspense>
   );
 }

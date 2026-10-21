@@ -28,7 +28,7 @@ const servicios = [
     titulo: "Diseño y branding",
     descripcion:
       "Construimos identidades visuales que destacan. Diseño gráfico, logotipos, imagen corporativa, portadas y materiales publicitarios.",
-    enlace: "/servicios/diseno-branding",
+    enlace: "/servicios/diseno-y-branding",
   },
   {
     numero: "04",
@@ -130,3 +130,4 @@ export default function ServiciosPage() {
     </main>
   );
 }
+

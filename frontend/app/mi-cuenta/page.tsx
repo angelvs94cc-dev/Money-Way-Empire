@@ -28,6 +28,13 @@ type RespuestaPedidos = {
   orders?: Pedido[];
 };
 
+type RespuestaCheckout = {
+  success: boolean;
+  message?: string;
+  checkoutUrl?: string;
+  status?: string;
+};
+
 function formatearPrecio(centimos: number) {
   return new Intl.NumberFormat("es-ES", {
     style: "currency",
@@ -63,6 +70,8 @@ export default function MiCuentaPage() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [pedidoPagando, setPedidoPagando] = useState<string | null>(null);
+  const [errorPago, setErrorPago] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const token = sessionStorage.getItem("mwe-token");
@@ -90,13 +99,11 @@ export default function MiCuentaPage() {
           return;
         }
 
-        const datos: RespuestaPedidos =
-          await respuesta.json();
+        const datos: RespuestaPedidos = await respuesta.json();
 
         if (!respuesta.ok || !datos.success) {
           throw new Error(
-            datos.message ||
-              "No se pudieron cargar tus pedidos."
+            datos.message || "No se pudieron cargar tus pedidos."
           );
         }
 
@@ -115,6 +122,89 @@ export default function MiCuentaPage() {
     void cargarPedidos();
   }, [router]);
 
+  async function pagarPedido(orderId: string) {
+    if (pedidoPagando) return;
+
+    const token = sessionStorage.getItem("mwe-token");
+
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    setPedidoPagando(orderId);
+    setErrorPago((anterior) => ({ ...anterior, [orderId]: "" }));
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    try {
+      // Comprobar primero si Stripe ya recibió el pago.
+      const verificacion = await fetch(
+        "http://localhost:4000/api/stripe/verify",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ orderId }),
+        }
+      );
+      const resultado: RespuestaCheckout = await verificacion.json();
+
+      if (verificacion.ok && resultado.success && resultado.status === "PAID") {
+        setPedidos((anteriores) =>
+          anteriores.map((pedido) =>
+            pedido.id === orderId ? { ...pedido, status: "PAID" } : pedido
+          )
+        );
+        return;
+      }
+
+      // 409: no hay un pago confirmado recuperable. El backend de checkout
+      // decidirá si reutiliza una sesión abierta o crea una nueva.
+      if (verificacion.status !== 409) {
+        throw new Error(resultado.message || "No se pudo verificar el pago.");
+      }
+
+      const respuesta = await fetch(
+        "http://localhost:4000/api/stripe/checkout",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ orderId }),
+        }
+      );
+      const datos: RespuestaCheckout = await respuesta.json();
+
+      // El backend también puede confirmar un pago durante checkout.
+      if (respuesta.ok && datos.success && datos.status === "PAID") {
+        setPedidos((anteriores) =>
+          anteriores.map((pedido) =>
+            pedido.id === orderId ? { ...pedido, status: "PAID" } : pedido
+          )
+        );
+        return;
+      }
+
+      if (!respuesta.ok || !datos.success || !datos.checkoutUrl) {
+        throw new Error(datos.message || "No se pudo iniciar el pago.");
+      }
+
+      window.location.assign(datos.checkoutUrl);
+    } catch (errorCapturado) {
+      setErrorPago((anterior) => ({
+        ...anterior,
+        [orderId]:
+          errorCapturado instanceof Error
+            ? errorCapturado.message
+            : "No se pudo comprobar el pago.",
+      }));
+    } finally {
+      setPedidoPagando(null);
+    }
+  }
+
   function cerrarSesion() {
     sessionStorage.removeItem("mwe-token");
     router.replace("/login");
@@ -123,9 +213,7 @@ export default function MiCuentaPage() {
   if (cargando) {
     return (
       <main className="min-h-screen bg-background px-6 py-24 text-center text-foreground">
-        <p className="text-gold">
-          Cargando tu cuenta...
-        </p>
+        <p className="text-gold">Cargando tu cuenta...</p>
       </main>
     );
   }
@@ -186,8 +274,7 @@ export default function MiCuentaPage() {
             </h3>
 
             <p className="mt-4 text-zinc-400">
-              Cuando realices tu primera compra,
-              podrás consultar aquí sus detalles.
+              Cuando realices tu primera compra, podrás consultar aquí sus detalles.
             </p>
 
             <Link
@@ -245,12 +332,8 @@ export default function MiCuentaPage() {
 
                         <p className="mt-2 text-sm text-zinc-400">
                           Cantidad: {item.quantity}
-                          {item.size
-                            ? ` · Talla: ${item.size}`
-                            : ""}
-                          {item.color
-                            ? ` · Color: ${item.color}`
-                            : ""}
+                          {item.size ? ` · Talla: ${item.size}` : ""}
+                          {item.color ? ` · Color: ${item.color}` : ""}
                         </p>
                       </div>
 
@@ -274,10 +357,31 @@ export default function MiCuentaPage() {
                 </div>
 
                 {pedido.status === "PENDING" && (
-                  <p className="mt-5 text-xs text-zinc-500">
-                    Pedido pendiente de pago.
-                    No se ha realizado ningún cobro.
-                  </p>
+                  <div className="mt-6">
+                    <p className="mb-4 text-sm text-zinc-400">
+                      Pedido pendiente de confirmación. Comprueba el pago antes de volver a pagar.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => void pagarPedido(pedido.id)}
+                      disabled={pedidoPagando !== null}
+                      className="bg-gold px-8 py-4 text-sm font-black uppercase text-black hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {pedidoPagando === pedido.id
+                        ? "COMPROBANDO CON STRIPE..."
+                        : "COMPROBAR / PAGAR"}
+                    </button>
+
+                    {errorPago[pedido.id] && (
+                      <p
+                        role="alert"
+                        className="mt-4 text-sm text-red-400"
+                      >
+                        {errorPago[pedido.id]}
+                      </p>
+                    )}
+                  </div>
                 )}
               </article>
             ))}

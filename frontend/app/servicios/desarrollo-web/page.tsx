@@ -124,7 +124,7 @@ export default function DesarrolloWebPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=desarrollo-web"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             HABLEMOS DE TU WEB
@@ -286,7 +286,7 @@ export default function DesarrolloWebPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=desarrollo-web"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             SOLICITAR PRESUPUESTO
@@ -296,3 +296,4 @@ export default function DesarrolloWebPage() {
     </main>
   );
 }
+

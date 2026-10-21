@@ -73,7 +73,7 @@ export default function ProduccionMusicalPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=produccion-musical"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             SOLICITAR INFORMACIÓN
@@ -185,7 +185,7 @@ export default function ProduccionMusicalPage() {
           </p>
 
           <Link
-            href="/contacto"
+            href="/contacto?servicio=produccion-musical"
             className="mt-10 inline-block bg-gold px-8 py-4 font-bold text-black transition hover:bg-gold-light"
           >
             CUÉNTANOS TU PROYECTO
@@ -195,3 +195,4 @@ export default function ProduccionMusicalPage() {
     </main>
   );
 }
+

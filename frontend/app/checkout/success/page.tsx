@@ -34,7 +34,7 @@ export default function CheckoutSuccessPage() {
 
     async function comprobarPedido() {
       try {
-        const respuesta = await fetch("http://localhost:4000/api/orders", {
+        const respuesta = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/orders", {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
         });

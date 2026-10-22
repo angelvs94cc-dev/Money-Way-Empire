@@ -56,7 +56,7 @@ export default function CarritoPage() {
     async function cargarProductos() {
       try {
         const respuesta = await fetch(
-          "http://localhost:4000/api/products",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/products",
           { cache: "no-store" }
         );
 
@@ -226,7 +226,7 @@ async function confirmarPedido() {
   setMensajeCompra("");
 
   try {
-    const respuesta = await fetch("http://localhost:4000/api/orders", {
+    const respuesta = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

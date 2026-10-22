@@ -35,7 +35,7 @@ export default function NuevoProductoPage() {
 
       try {
         const respuesta = await fetch(
-          "http://localhost:4000/api/auth/admin",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/admin",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export default function NuevoProductoPage() {
 
     try {
       const respuesta = await fetch(
-        "http://localhost:4000/api/products",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/products",
         {
           method: "POST",
           headers: {

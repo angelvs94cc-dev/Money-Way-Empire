@@ -84,7 +84,7 @@ export default function MiCuentaPage() {
     async function cargarPedidos() {
       try {
         const respuesta = await fetch(
-          "http://localhost:4000/api/orders",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/orders",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -143,7 +143,7 @@ export default function MiCuentaPage() {
     try {
       // Comprobar primero si Stripe ya recibió el pago.
       const verificacion = await fetch(
-        "http://localhost:4000/api/stripe/verify",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/stripe/verify",
         {
           method: "POST",
           headers,
@@ -168,7 +168,7 @@ export default function MiCuentaPage() {
       }
 
       const respuesta = await fetch(
-        "http://localhost:4000/api/stripe/checkout",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/stripe/checkout",
         {
           method: "POST",
           headers,

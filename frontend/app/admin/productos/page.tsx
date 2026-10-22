@@ -32,7 +32,7 @@ export default function AdminProductosPage() {
 
       try {
         const acceso = await fetch(
-          "http://localhost:4000/api/auth/admin",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/admin",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ export default function AdminProductosPage() {
         }
 
         const respuesta = await fetch(
-          "http://localhost:4000/api/products",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/products",
           { cache: "no-store" }
         );
 
@@ -94,7 +94,7 @@ export default function AdminProductosPage() {
 
     try {
       const respuesta = await fetch(
-        `http://localhost:4000/api/products/${producto.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/products/${producto.id}`,
         {
           method: "DELETE",
           headers: {

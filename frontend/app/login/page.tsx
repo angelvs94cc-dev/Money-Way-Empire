@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     try {
       const respuesta = await fetch(
-        "http://localhost:4000/api/auth/signin",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/signin",
         {
           method: "POST",
           headers: {

@@ -51,7 +51,7 @@ function EditarProductoContenido() {
 
       try {
         const respuesta = await fetch(
-          "http://localhost:4000/api/auth/admin",
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/admin",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ function EditarProductoContenido() {
           throw new Error("No tienes acceso de administrador.");
         }
 
-        const productosRespuesta = await fetch("http://localhost:4000/api/products", {
+        const productosRespuesta = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/products", {
           cache: "no-store",
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -131,7 +131,7 @@ function EditarProductoContenido() {
 
     try {
       const respuesta = await fetch(
-        `http://localhost:4000/api/products/${encodeURIComponent(id)}`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/products/${encodeURIComponent(id)}`,
         {
           method: "PATCH",
           headers: {

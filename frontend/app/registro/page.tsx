@@ -50,7 +50,7 @@ export default function RegistroPage() {
       const correo = email.trim().toLowerCase();
 
       const respuestaRegistro = await fetch(
-        "http://localhost:4000/api/auth/signup",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/signup",
         {
           method: "POST",
           headers: {
@@ -76,7 +76,7 @@ export default function RegistroPage() {
 
       // Iniciar sesión después de crear la cuenta.
       const respuestaLogin = await fetch(
-        "http://localhost:4000/api/auth/signin",
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/signin",
         {
           method: "POST",
           headers: {

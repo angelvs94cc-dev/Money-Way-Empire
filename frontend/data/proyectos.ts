@@ -35,7 +35,7 @@ export const proyectos: Proyecto[] = [
     "participacion": "Grabación, edición y dirección (declarado por el usuario)",
     "otrosCreditos": "Participan Papi Trujillo, Dafresito y Khaled; se menciona relación con Dawiz (detalle por confirmar).",
     "enlace": "https://youtu.be/fLEKF2bEhps",
-    "imagen": "",
+    "imagen": "https://img.youtube.com/vi/fLEKF2bEhps/hqdefault.jpg",
     "publicado": true,
     "pendienteVerificar": "Título indicado por usuario"
   },
@@ -49,7 +49,7 @@ export const proyectos: Proyecto[] = [
     "participacion": "Asistencia de producción (declarado por el usuario)",
     "otrosCreditos": "Arón Piper aparece en el vídeo (indicado por usuario); productora y dirección principal sin confirmar.",
     "enlace": "https://www.youtube.com/watch?v=PCo4vgi3fuI",
-    "imagen": "",
+    "imagen": "https://img.youtube.com/vi/PCo4vgi3fuI/hqdefault.jpg",
     "publicado": true,
     "pendienteVerificar": "Título indicado por usuario"
   },
@@ -63,7 +63,7 @@ export const proyectos: Proyecto[] = [
     "participacion": "Asistencia de fotografía (declarado por el usuario)",
     "otrosCreditos": "Producción audiovisual Fractal mencionada en fuente pública; idea original atribuida a Papi Trujillo.",
     "enlace": "https://www.youtube.com/watch?v=bo4zP-LS-EY",
-    "imagen": "",
+    "imagen": "https://img.youtube.com/vi/bo4zP-LS-EY/hqdefault.jpg",
     "publicado": true,
     "pendienteVerificar": "Título indicado por usuario"
   },
@@ -367,11 +367,11 @@ export const proyectos: Proyecto[] = [
     "subcategoria": "Publicidad y contenido de marca",
     "titulo": "Kalu Ibiza — vídeo publicitario",
     "cliente": "Kalu Ibiza",
-    "descripcion": "Producción audiovisual para Kalu Ibiza. Grabación y edición de vídeo, con música de Icky.",
+    "descripcion": "Producción audiovisual para Kalu Ibiza. Grabación y edición de vídeo, con música de Ikki.",
     "participacion": "No se ha confirmado la función exacta para este vídeo",
     "otrosCreditos": "",
     "enlace": "https://youtu.be/uDuh6L0xUIc",
-    "imagen": "",
+    "imagen": "https://img.youtube.com/vi/uDuh6L0xUIc/hqdefault.jpg",
     "publicado": true,
     "pendienteVerificar": "Proyecto identificado, títulos del vídeo pendientes"
   },

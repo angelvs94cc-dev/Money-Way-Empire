@@ -107,11 +107,32 @@ function ContenidoProyectos() {
             >
               <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-zinc-800">
                 {proyecto.imagen ? (
-                  <img
-                    src={proyecto.imagen}
-                    alt={proyecto.titulo}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
+                  proyecto.categoria === "Audiovisual" && proyecto.enlace ? (
+                    <a
+                      href={proyecto.enlace}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative block h-full w-full"
+                      aria-label={`Ver vídeo: ${proyecto.titulo}`}
+                    >
+                      <img
+                        src={proyecto.imagen}
+                        alt={proyecto.titulo}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-yellow-500 text-2xl text-black">
+                          ▶
+                        </span>
+                      </span>
+                    </a>
+                  ) : (
+                    <img
+                      src={proyecto.imagen}
+                      alt={proyecto.titulo}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  )
                 ) : (
                   <div className="px-6 text-center">
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">

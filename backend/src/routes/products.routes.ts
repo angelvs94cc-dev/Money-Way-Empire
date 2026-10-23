@@ -50,6 +50,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
       description,
       price,
       stock,
+      madeToOrder,
       imageUrl,
       category,
       sizes,
@@ -64,6 +65,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
       price <= 0 ||
       !Number.isSafeInteger(stock) ||
       stock < 0 ||
+      (madeToOrder !== undefined && typeof madeToOrder !== 'boolean') ||
       (description !== undefined &&
         description !== null &&
         typeof description !== "string") ||
@@ -90,6 +92,7 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
         description: description ?? null,
         price,
         stock,
+        madeToOrder: madeToOrder ?? false,
         imageUrl: imageUrl ?? null,
         category: category ?? "Camisetas",
         sizes: sizes ?? [],
@@ -123,6 +126,7 @@ router.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
       description,
       price,
       stock,
+      madeToOrder,
       imageUrl,
       category,
       sizes,
@@ -141,6 +145,7 @@ router.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
         (!Number.isSafeInteger(price) || price <= 0)) ||
       (stock !== undefined &&
         (!Number.isSafeInteger(stock) || stock < 0)) ||
+      (madeToOrder !== undefined && typeof madeToOrder !== 'boolean') ||
       (imageUrl !== undefined &&
         imageUrl !== null &&
         typeof imageUrl !== "string") ||
@@ -178,6 +183,7 @@ router.patch("/:id", requireAuth, requireAdmin, async (req, res) => {
         ...(description !== undefined && { description }),
         ...(price !== undefined && { price }),
         ...(stock !== undefined && { stock }),
+        ...(madeToOrder !== undefined && { madeToOrder }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(category !== undefined && { category }),
         ...(sizes !== undefined && { sizes }),

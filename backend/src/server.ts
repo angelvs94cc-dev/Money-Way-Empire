@@ -169,8 +169,11 @@ app.post(
             if (updated.count !== 1) return;
 
             for (const item of order.items) {
-              await tx.product.update({
-                where: { id: item.productId },
+              await tx.product.updateMany({
+                where: {
+                  id: item.productId,
+                  madeToOrder: false,
+                },
                 data: {
                   stock: { increment: item.quantity },
                 },
@@ -242,4 +245,5 @@ app.listen(PORT, () => {
     `Money Way Empire API funcionando en http://localhost:${PORT}`
   );
 });
+
 

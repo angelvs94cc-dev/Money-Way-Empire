@@ -150,8 +150,8 @@ router.patch(
             // Devolvemos las unidades incluso si el producto
             // se ha desactivado de la tienda.
             for (const [productId, cantidad] of cantidades) {
-              await tx.product.update({
-                where: { id: productId },
+              await tx.product.updateMany({
+                where: { id: productId, madeToOrder: false },
                 data: {
                   stock: { increment: cantidad },
                 },
@@ -365,11 +365,13 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
             color,
           });
 
+          if (!producto.madeToOrder) {
           cantidadesPorProducto.set(
             producto.id,
             (cantidadesPorProducto.get(producto.id) ?? 0) +
               item.quantity
           );
+          }
         }
 
         for (const [productId, cantidad] of cantidadesPorProducto) {
@@ -446,6 +448,8 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 export default router;
+
+
 
 
 

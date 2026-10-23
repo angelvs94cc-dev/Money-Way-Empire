@@ -15,6 +15,7 @@ type ProductoAPI = {
   description: string | null;
   price: number;
   stock: number;
+  madeToOrder: boolean;
   imageUrl: string | null;
   category: string;
   sizes: string[];
@@ -177,11 +178,11 @@ function ProductoContenido() {
     );
   }
 
-  const sinStock = producto.stock <= 0;
+  const sinStock = !producto.madeToOrder && producto.stock <= 0;
 
   const limiteCantidad = Math.min(
     10,
-    producto.stock
+    producto.madeToOrder ? 10 : producto.stock
   );
 
   const subtotal =
@@ -258,8 +259,8 @@ function ProductoContenido() {
         );
 
     if (
-      unidadesGuardadas + cantidad >
-      producto.stock
+      !producto.madeToOrder &&
+      unidadesGuardadas + cantidad > producto.stock
     ) {
       setMensaje(
         `Solo hay ${producto.stock} unidades disponibles en total. Ya tienes ${unidadesGuardadas} en el carrito.`
@@ -392,7 +393,7 @@ function ProductoContenido() {
             >
               {sinStock
                 ? "PRODUCTO AGOTADO"
-                : `DISPONIBLE · ${producto.stock} unidades en stock`}
+                : producto.madeToOrder ? "FABRICACIÓN BAJO DEMANDA" : `DISPONIBLE · ${producto.stock} unidades en stock`}
             </p>
 
             <div className="mt-10 border-t border-white/10 pt-8">

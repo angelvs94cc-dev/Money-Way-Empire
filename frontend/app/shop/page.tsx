@@ -11,6 +11,7 @@ type ProductoAPI = {
   description: string | null;
   price: number;
   stock: number;
+  madeToOrder: boolean;
   imageUrl: string | null;
   category: string;
   sizes: string[];
@@ -278,14 +279,16 @@ export default function ShopPage() {
 
                         <p
                           className={`mt-4 text-sm font-bold ${
-                            producto.stock > 0
+                            producto.madeToOrder || producto.stock > 0
                               ? "text-green-400"
                               : "text-red-400"
                           }`}
                         >
-                          {producto.stock > 0
-                            ? `${producto.stock} unidades disponibles`
-                            : "Agotado"}
+                          {producto.madeToOrder
+                              ? "Fabricación bajo demanda"
+                              : producto.stock > 0
+                                ? `${producto.stock} unidades disponibles`
+                                : "Agotado"}
                         </p>
 
                         <div className="mt-auto pt-8">

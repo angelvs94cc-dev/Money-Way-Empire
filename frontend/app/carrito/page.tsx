@@ -19,6 +19,7 @@ type ProductoAPI = {
   description: string | null;
   price: number;
   stock: number;
+  madeToOrder: boolean;
   imageUrl: string | null;
   category: string;
   sizes: string[];
@@ -189,7 +190,7 @@ export default function CarritoPage() {
       );
 
       if (
-        cantidadActual + cambio >
+        !linea.producto.madeToOrder && cantidadActual + cambio >
         linea.producto.stock
       ) {
         return;
@@ -216,7 +217,7 @@ async function confirmarPedido() {
 
   if (
     productosNoDisponibles > 0 ||
-    lineas.some((linea) => linea.cantidad > linea.producto.stock)
+    lineas.some((linea) => !linea.producto.madeToOrder && linea.cantidad > linea.producto.stock)
   ) {
     setMensajeCompra("Revisa los productos y las cantidades del carrito.");
     return;
@@ -401,13 +402,11 @@ async function confirmarPedido() {
                   );
 
                 const superaStock =
-                  cantidadActual >
-                  linea.producto.stock;
+                  !linea.producto.madeToOrder && cantidadActual > linea.producto.stock;
 
                 const puedeAumentar =
                   linea.cantidad < 10 &&
-                  cantidadActual <
-                    linea.producto.stock;
+                  (linea.producto.madeToOrder || cantidadActual < linea.producto.stock);
 
                 const totalLinea =
                   (linea.producto.price *
@@ -467,8 +466,7 @@ async function confirmarPedido() {
                       </p>
 
                       <p className="mt-3 text-xs text-zinc-500">
-                        Stock disponible:{" "}
-                        {linea.producto.stock}
+                        {linea.producto.madeToOrder ? "Fabricación bajo demanda" : `Stock disponible: ${linea.producto.stock}`}
                       </p>
 
                       {superaStock && (
@@ -592,7 +590,7 @@ async function confirmarPedido() {
     		  confirmando ||
     		  productosNoDisponibles > 0 ||
     		  lineas.some(
-      		    (linea) => linea.cantidad > linea.producto.stock
+      		    (linea) => !linea.producto.madeToOrder && linea.cantidad > linea.producto.stock
     	          )
  	        }
   		onClick={() => void confirmarPedido()}

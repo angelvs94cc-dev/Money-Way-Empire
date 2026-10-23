@@ -10,6 +10,7 @@ type Producto = {
   description: string | null;
   price: number;
   stock: number;
+  madeToOrder: boolean;
   category: string;
   imageUrl: string | null;
   sizes: string[];
@@ -32,6 +33,7 @@ function EditarProductoContenido() {
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("0");
+  const [madeToOrder, setMadeToOrder] = useState(false);
   const [categoria, setCategoria] = useState("Camisetas");
   const [imagen, setImagen] = useState("");
   const [tallas, setTallas] = useState("");
@@ -80,6 +82,7 @@ function EditarProductoContenido() {
         setDescripcion(producto.description ?? "");
         setPrecio(String(producto.price / 100));
         setStock(String(producto.stock));
+        setMadeToOrder(producto.madeToOrder ?? false);
         setCategoria(producto.category);
         setImagen(producto.imageUrl ?? "");
         setTallas(producto.sizes.join(", "));
@@ -142,7 +145,8 @@ function EditarProductoContenido() {
             name: nombre.trim(),
             description: descripcion.trim() || null,
             price: precioCentimos,
-            stock: stockNumero,
+            stock: madeToOrder ? 0 : stockNumero,
+            madeToOrder,
             category: categoria,
             imageUrl: imagen.trim() || null,
             sizes: tallas
@@ -257,6 +261,18 @@ function EditarProductoContenido() {
               className={campo}
             />
           </div>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={madeToOrder}
+              onChange={(e) => setMadeToOrder(e.target.checked)}
+              className="h-5 w-5 accent-yellow-500"
+            />
+            <span className="font-bold">
+              Fabricación bajo demanda (sin stock físico)
+            </span>
+          </label>
+
 
           <div className="grid gap-6 md:grid-cols-2">
             <div>
@@ -280,6 +296,7 @@ function EditarProductoContenido() {
               </label>
               <input
                 id="stock"
+                disabled={madeToOrder}
                 type="number"
                 min="0"
                 step="1"

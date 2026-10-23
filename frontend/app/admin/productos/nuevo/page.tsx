@@ -17,6 +17,7 @@ export default function NuevoProductoPage() {
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("0");
+  const [madeToOrder, setMadeToOrder] = useState(true);
   const [categoria, setCategoria] = useState("Camisetas");
   const [imagen, setImagen] = useState("");
   const [tallas, setTallas] = useState("");
@@ -104,7 +105,8 @@ export default function NuevoProductoPage() {
             name: nombre.trim(),
             description: descripcion.trim() || null,
             price: precioCentimos,
-            stock: stockNumero,
+            stock: madeToOrder ? 0 : stockNumero,
+            madeToOrder,
             category: categoria,
             imageUrl: imagen.trim() || null,
             sizes: tallas
@@ -218,6 +220,18 @@ export default function NuevoProductoPage() {
               className={campo}
             />
           </div>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={madeToOrder}
+              onChange={(e) => setMadeToOrder(e.target.checked)}
+              className="h-5 w-5 accent-yellow-500"
+            />
+            <span className="font-bold">
+              Fabricación bajo demanda (sin stock físico)
+            </span>
+          </label>
+
 
           <div className="grid gap-6 md:grid-cols-2">
             <div>
@@ -241,6 +255,7 @@ export default function NuevoProductoPage() {
               </label>
               <input
                 id="stock"
+                disabled={madeToOrder}
                 type="number"
                 min="0"
                 step="1"

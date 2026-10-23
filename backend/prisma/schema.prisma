@@ -38,6 +38,7 @@ model Product {
   description String?
   price       Int
   stock       Int      @default(0)
+  madeToOrder Boolean  @default(false)
   imageUrl    String?
   category    String   @default("Camisetas")
   sizes       String[] @default([])
@@ -83,4 +84,5 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
 }
+
 

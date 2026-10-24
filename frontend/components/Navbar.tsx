@@ -2,7 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 
 const menus = [
   {
@@ -87,6 +88,37 @@ export default function Navbar() {
   );
 
   const [movilAbierto, setMovilAbierto] = useState(false);
+  const [sesionIniciada, setSesionIniciada] = useState(false);
+  const [esAdministrador, setEsAdministrador] = useState(false);
+
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("mwe-token");
+    setSesionIniciada(Boolean(token));
+
+    if (!token) {
+      setEsAdministrador(false);
+      return;
+    }
+
+    async function comprobarAdministrador() {
+      try {
+        const respuesta = await fetch(
+          (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000") + "/api/auth/admin",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          }
+        );
+
+        setEsAdministrador(respuesta.ok);
+      } catch {
+        setEsAdministrador(false);
+      }
+    }
+
+    void comprobarAdministrador();
+  }, []);
 
   const cerrarMenus = () => {
     setMenuAbierto(null);
@@ -207,6 +239,35 @@ export default function Navbar() {
             Contacto
           </Link>
 
+          {!sesionIniciada && (<>
+          <Link
+            href="/login"
+            className="transition hover:text-gold"
+            onClick={cerrarMenus}
+          >
+            Iniciar sesión
+          </Link>
+
+          <Link
+            href="/registro"
+            className="font-bold text-gold transition hover:text-gold-light"
+            onClick={cerrarMenus}
+          >
+            Registrarse
+          </Link>
+          </>)}
+
+          {esAdministrador && (
+            <Link
+              href="/admin"
+              className="font-bold text-gold transition hover:text-gold-light"
+              onClick={cerrarMenus}
+            >
+              Administración
+            </Link>
+          )}
+
+          {sesionIniciada && (
           <Link
             href="/mi-cuenta"
             aria-label="Mi cuenta"
@@ -215,6 +276,7 @@ export default function Navbar() {
           >
             ♙ Cuenta
           </Link>
+          )}
 
           <Link
             href="/carrito"
@@ -229,3 +291,15 @@ export default function Navbar() {
     </header>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+

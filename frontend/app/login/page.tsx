@@ -127,6 +127,13 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p className="mt-6 text-center text-sm text-zinc-400">
+          ¿Todavía no tienes cuenta?{" "}
+          <Link href="/registro" className="font-bold text-gold hover:underline">
+            Regístrate aquí
+          </Link>
+        </p>
+
         <Link
           href="/shop"
           className="mt-8 block text-center text-sm font-bold text-gold"
@@ -137,3 +144,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

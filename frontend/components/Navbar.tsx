@@ -134,11 +134,16 @@ export default function Navbar() {
           onClick={cerrarMenus}
           aria-label="Money Way Empire - Inicio"
         >
-          <img
-            src="/images/money-way-empire-logo.svg"
-            alt="Money Way Empire"
-            className="h-12 w-auto max-w-40 object-contain"
-          />
+          <div className="flex items-center gap-3">
+  <img
+    src="/images/money-way-empire-simbolo.svg"
+    alt=""
+    className="h-12 w-12 shrink-0 object-contain"
+  />
+  <span className="text-xl font-black tracking-widest text-gold">
+    MONEY WAY EMPIRE
+  </span>
+</div>
         </Link>
 
         <button
@@ -296,6 +301,7 @@ export default function Navbar() {
     </header>
   );
 }
+
 
 
 

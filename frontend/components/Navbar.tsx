@@ -130,10 +130,15 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5">
         <Link
           href="/"
-          className="text-xl font-black tracking-widest text-gold"
+          className="flex shrink-0 items-center"
           onClick={cerrarMenus}
+          aria-label="Money Way Empire - Inicio"
         >
-          MONEY WAY EMPIRE
+          <img
+            src="/images/money-way-empire-logo.svg"
+            alt="Money Way Empire"
+            className="h-12 w-auto max-w-40 object-contain"
+          />
         </Link>
 
         <button
@@ -291,6 +296,7 @@ export default function Navbar() {
     </header>
   );
 }
+
 
 
 

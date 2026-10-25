@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatearPrecio } from "../../../lib/productos";
+import { obtenerGaleriaProducto } from "../../../lib/galeriaProductos";
 import {
   agregarAlCarrito,
   obtenerCarrito,
@@ -43,6 +44,7 @@ function ProductoContenido() {
   const [colorSeleccionado, setColorSeleccionado] =
     useState("");
   const [cantidad, setCantidad] = useState(1);
+  const [indiceImagen, setIndiceImagen] = useState(0);
   const [mensaje, setMensaje] = useState("");
   const [anadido, setAnadido] = useState(false);
 
@@ -56,6 +58,7 @@ function ProductoContenido() {
       setTallaSeleccionada("");
       setColorSeleccionado("");
       setCantidad(1);
+      setIndiceImagen(0);
       setMensaje("");
       setAnadido(false);
 
@@ -177,6 +180,13 @@ function ProductoContenido() {
       </main>
     );
   }
+
+  const imagenesProducto = obtenerGaleriaProducto(
+    producto.name,
+    colorSeleccionado || producto.colors[0] || "",
+    producto.imageUrl
+  );
+  const imagenActual = imagenesProducto[indiceImagen] || imagenesProducto[0];
 
   const sinStock = !producto.madeToOrder && producto.stock <= 0;
 
@@ -330,31 +340,56 @@ function ProductoContenido() {
       {/* PRODUCTO */}
       <section className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid gap-12 lg:grid-cols-2">
-          {/* IMAGEN */}
-          <div className="overflow-hidden border border-white/10 bg-graphite">
-            <div className="flex aspect-[4/5] flex-col items-center justify-center bg-zinc-800 p-10 text-center">
-              {producto.imageUrl ? (
-                <img
-                  src={producto.imageUrl}
-                  alt={producto.name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <>
-                  <p className="text-sm font-bold uppercase tracking-[0.3em] text-gold">
-                    Money Way Empire
-                  </p>
-
-                  <h2 className="mt-8 text-4xl font-black uppercase md:text-5xl">
-                    {producto.name}
-                  </h2>
-
-                  <p className="mt-6 text-sm text-zinc-500">
-                    Fotografía próximamente
-                  </p>
-                </>
-              )}
+          {/* GALERÍA DE FOTOGRAFÍAS */}
+          <div className="min-w-0">
+            <div className="overflow-hidden border border-white/10 bg-graphite">
+              <div className="flex aspect-[4/5] items-center justify-center bg-zinc-800 p-4 text-center sm:p-8">
+                {imagenActual ? (
+                  <img
+                    src={imagenActual}
+                    alt={`${producto.name} - ${colorSeleccionado || producto.colors[0] || "producto"} - imagen ${indiceImagen + 1}`}
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <div>
+                    <p className="text-sm font-bold uppercase tracking-[0.3em] text-gold">
+                      Money Way Empire
+                    </p>
+                    <h2 className="mt-8 text-4xl font-black uppercase md:text-5xl">
+                      {producto.name}
+                    </h2>
+                    <p className="mt-6 text-sm text-zinc-500">
+                      Fotografía próximamente
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {imagenesProducto.length > 1 && (
+              <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+                {imagenesProducto.map((imagen, indice) => (
+                  <button
+                    key={`${imagen}-${indice}`}
+                    type="button"
+                    onClick={() => setIndiceImagen(indice)}
+                    aria-label={`Ver fotografía ${indice + 1} de ${producto.name}`}
+                    aria-pressed={indice === indiceImagen}
+                    className={`aspect-square overflow-hidden border bg-zinc-800 p-1 transition ${
+                      indice === indiceImagen
+                        ? "border-gold"
+                        : "border-white/20 hover:border-gold"
+                    }`}
+                  >
+                    <img
+                      src={imagen}
+                      alt={`${producto.name} - vista ${indice + 1}`}
+                      className="h-full w-full object-contain"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* INFORMACIÓN */}
@@ -450,9 +485,8 @@ function ProductoContenido() {
                           key={color}
                           type="button"
                           onClick={() => {
-                            setColorSeleccionado(
-                              color
-                            );
+                            setColorSeleccionado(color);
+                            setIndiceImagen(0);
                             setMensaje("");
                             setAnadido(false);
                           }}
